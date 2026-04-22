@@ -43,6 +43,18 @@ if (process.env.NODE_ENV !== "production") {
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// To make trust the proxy request and redirect to secure proxy
+app.enable('trust proxy');
+
+app.use((req, res, next) =>{
+  if( req.secure || req.header['x-forwarded-proto'  ] === 'https'){
+    next();
+  }
+  else{
+    res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+})
+
 // Routes
 app.use("/api/profiles", profileRoutes);
 
